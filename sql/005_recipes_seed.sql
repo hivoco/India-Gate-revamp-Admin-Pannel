@@ -2,9 +2,14 @@
 -- admin panel starts out matching what is live. Run after 004_recipes.sql.
 --
 -- Generated from india-gate-2026-ui/app/recipes/data/videos.ts, 9 rows.
--- Safe to run once on an empty table, it does not deduplicate.
+-- empty. Re-running an unguarded seed is how a set of rows gets silently
+-- doubled, which is exactly what happened once here.
+--
+-- INSERT IGNORE plus the unique index added in 014 makes this safe to
+-- re-run: a row that is already there is skipped rather than inserted
+-- again. An unguarded re-run is how these rows got silently doubled once.
 
-INSERT INTO recipes (title, youtube_url, duration, category, difficulty, serves, cook_time, sort_order, is_active) VALUES
+INSERT IGNORE INTO recipes (title, youtube_url, duration, category, difficulty, serves, cook_time, sort_order, is_active) VALUES
   ('Classic Recipe | Navratan Handi with India Gate Classic Rice', 'https://www.youtube.com/watch?v=X4vMxrjY-RM', '2:44', 'Classic', 'Easy', 'Serves 4', '03:00 min', 0, 1),
   ('Biryani Recipe | Special Biryani with India Gate Rice', 'https://www.youtube.com/watch?v=3W7eeA6yZo4', '5:20', 'Biryani', 'Medium', 'Serves 6', '15:00 min', 1, 1),
   ('Pulao Recipe | Delicious Pulao with India Gate Rice', 'https://www.youtube.com/watch?v=kRFjVUgph58', '4:15', 'Pulao', 'Easy', 'Serves 4', '10:00 min', 2, 1),

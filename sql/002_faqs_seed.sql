@@ -3,10 +3,13 @@
 -- 001_faqs_add_page_key.sql.
 --
 -- Generated from the india-gate-2026-ui source, 87 rows across
--- 17 pages. Safe to run once on an empty
--- table, it does not deduplicate.
+-- 17 pages.
+--
+-- INSERT IGNORE plus the unique index added in 014 makes this safe to
+-- re-run: a row that is already there is skipped rather than inserted
+-- again. An unguarded re-run is how these rows got silently doubled once.
 
-INSERT INTO faqs (question, answer, page_key, category, sort_order, is_active) VALUES
+INSERT IGNORE INTO faqs (question, answer, page_key, category, sort_order, is_active) VALUES
   ('Which basmati rice is best for biryani?', 'For biryani, look for extra-long grains with high elongation that stay firm through dum cooking. Naturally aged basmati delivers better texture, grain separation, and the presentation biryani deserves. India Gate Classic and Super are ideal choices.', 'home', NULL, 0, 1),
   ('What makes basmati rice different from regular rice?', 'Basmati is a distinct variety known for its long, slender grains, natural fragrance, and fluffy texture when cooked. Unlike regular rice, basmati elongates significantly during cooking and stays light and separate, not sticky or clumpy.', 'home', NULL, 1, 1),
   ('Why is naturally aged basmati better?', 'Ageing is the hallmark of quality basmati. Through natural ageing, grains develop deeper flavour, finer texture, improved elongation, and more consistent cooking results. It''s what separates refined basmati from ordinary rice.', 'home', NULL, 2, 1),
