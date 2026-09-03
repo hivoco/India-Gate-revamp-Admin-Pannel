@@ -7,7 +7,7 @@ import {
   sendContactAcknowledgement,
   sendContactNotification,
 } from "@/app/lib/utils/mailer";
-import { CONTACT_LIMITS } from "@/app/lib/constants/contact-limits";
+import { validateContact } from "@/app/lib/utils/contact-validation";
 
 // -------------------- Interfaces --------------------
 
@@ -18,13 +18,6 @@ interface Contact extends RowDataPacket {
   email: string;
   message: string;
   created_at: Date;
-}
-
-interface ContactInput {
-  name: string;
-  mobile_no: string | null;
-  email: string;
-  message: string;
 }
 
 interface CountRow extends RowDataPacket {
@@ -61,32 +54,21 @@ function verifyUser(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body: ContactInput = await request.json();
+    const body: unknown = await request.json();
 
-    const { name, mobile_no, email, message } = body;
+    // this endpoint is reachable without a login, so it validates for itself
+    // rather than trusting whatever posted to it. the site checks the same
+    // rules before forwarding, neither one relies on the other having run
+    const checked = validateContact(body);
 
-    // the form caps these in the browser, this is the same cap for anything
-    // that posts here directly
-    const tooLong = (
-      [
-        ["Name", name, CONTACT_LIMITS.name],
-        ["Email", email, CONTACT_LIMITS.email],
-        ["Message", message, CONTACT_LIMITS.message],
-        ["Mobile number", mobile_no ?? "", CONTACT_LIMITS.mobile],
-      ] as const
-    ).find(([, value, limit]) => (value ?? "").length > limit);
-
-    if (tooLong) {
-      const [label, , limit] = tooLong;
-
+    if (!checked.ok) {
       return NextResponse.json(
-        {
-          success: false,
-          message: `${label} must be ${limit} characters or fewer.`,
-        },
+        { success: false, message: checked.error },
         { status: 400 },
       );
     }
+
+    const { name, mobile_no, email, message } = checked.value;
 
     const [result] = await pool.query<ResultSetHeader>(
       `

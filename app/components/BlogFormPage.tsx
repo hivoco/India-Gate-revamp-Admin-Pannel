@@ -44,6 +44,32 @@ Quill.register(Size as never, true);
 const Align = Quill.import("attributors/style/align") as unknown as object;
 Quill.register(Align as never, true);
 
+// quill decides whether a url is safe by putting it on a throwaway anchor and
+// reading the protocol the browser resolves it to. a bare domain resolves
+// against the page it is typed on, so "www.indiagatefoods.com" comes back as
+// https and passes, and quill then stores the string exactly as typed. the
+// site renders that as a relative href, so the word is a link to
+// /food-stories/articles/www.indiagatefoods.com, which is a 404.
+//
+// so a value with no scheme of its own gets https put on it before quill's own
+// whitelist sees it. relative links, anchors and mailto are already right and
+// go through untouched, and a blocked protocol is still quill's call
+const Link = Quill.import("formats/link") as unknown as {
+  sanitize: (url: string) => string;
+};
+const quillSanitize = Link.sanitize;
+
+Link.sanitize = (url: string) => {
+  const value = url.trim();
+  const isRelative = /^[/#?]/.test(value);
+  const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(value);
+
+  return quillSanitize.call(
+    Link,
+    isRelative || hasScheme || !value ? value : `https://${value}`,
+  );
+};
+
 // quill ships this module but does not type it on the public api
 interface QuillTableModule {
   insertTable: (rows: number, columns: number) => void;
@@ -373,7 +399,7 @@ export default function BlogFormPage() {
                   alt=""
                   width={128}
                   height={128}
-                  className="h-32 rounded-lg object-cover"
+                  className="h-32 w-auto rounded-lg object-contain"
                 />
               </div>
             )}

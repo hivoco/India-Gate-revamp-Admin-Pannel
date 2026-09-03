@@ -72,13 +72,13 @@ export default function BlogPreview({
           </p>
 
           {imageUrl && (
-            <div className="relative mt-6 aspect-[16/9] w-full overflow-hidden rounded-2xl">
+            <div className="relative mt-6 h-[400px] w-full overflow-hidden rounded-2xl">
               <Image
                 src={imageUrl}
                 alt={title}
                 fill
                 sizes="(min-width: 768px) 768px, 100vw"
-                className="object-cover"
+                className="object-contain"
                 unoptimized
               />
             </div>
