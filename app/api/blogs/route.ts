@@ -6,6 +6,12 @@ import { denySection } from "@/app/lib/utils/guard";
 import { deleteImageFile, saveImage } from "@/app/lib/utils/upload";
 import { slugify } from "@/app/lib/utils/slug";
 
+// a checkbox can arrive as "true" from the panel or as "1" after a round trip,
+// mysql hands tinyint back as a number so String() on it gives "1" and a plain
+// match against "true" quietly read that as off and unpublished the post
+const truthy = (value: FormDataEntryValue | null) =>
+  value === "true" || value === "1" || value === "on";
+
 // -------------------- Interfaces --------------------
 
 interface Blog extends RowDataPacket {
@@ -245,7 +251,7 @@ export async function POST(request: NextRequest) {
     const subtitle = (formData.get("subtitle") as string) || "";
     const category = ((formData.get("category") as string) || "").trim();
     const content = normaliseSpaces((formData.get("content") as string) ?? "");
-    const is_published = formData.get("is_published") === "true";
+    const is_published = truthy(formData.get("is_published"));
 
     const image = formData.get("image") as File | null;
 
@@ -374,7 +380,7 @@ export async function PUT(request: NextRequest) {
 
     const is_published =
       formData.get("is_published") !== null
-        ? formData.get("is_published") === "true"
+        ? truthy(formData.get("is_published"))
         : existing.is_published;
 
     const image = formData.get("image") as File | null;

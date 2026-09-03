@@ -18,6 +18,12 @@ interface Slide extends RowDataPacket {
   is_active: boolean;
 }
 
+// a checkbox can arrive as "true" from the panel or as "1" after a round trip,
+// mysql hands tinyint back as a number so String() on it gives "1" and a plain
+// match against "true" quietly read that as off and deactivated the row
+const truthy = (value: FormDataEntryValue | null) =>
+  value === "true" || value === "1" || value === "on";
+
 const text = (form: FormData, key: string) => {
   const value = form.get(key);
 
@@ -201,7 +207,7 @@ export async function PUT(request: NextRequest) {
         text(form, "alt"),
         text(form, "link"),
         Number(form.get("sort_order") ?? existing.sort_order) || 0,
-        rawActive === null ? existing.is_active : rawActive === "true",
+        rawActive === null ? existing.is_active : truthy(rawActive),
         Number(id),
       ],
     );

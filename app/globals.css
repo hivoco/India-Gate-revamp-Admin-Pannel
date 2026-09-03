@@ -70,17 +70,23 @@
 
 .blog-editor .ql-editor table,
 .blog-content table {
-  width: 100%;
+  /* only as wide as the cells need, centred in the column rather than stretched.
+     quill sets table-layout fixed on its own tables, which sizes the columns off
+     the table box instead of the text, so that has to go back to auto or the
+     table fills the row no matter what width says */
+  table-layout: auto;
+  width: fit-content;
+  max-width: 100%;
   border-collapse: collapse;
-  margin: 1.25rem 0;
+  margin: 1.25rem auto;
   font-size: 0.95em;
 }
 
-.blog-editor .ql-editor td,
-.blog-editor .ql-editor th,
+.blog-editor .ql-editor table td,
+.blog-editor .ql-editor table th,
 .blog-content td,
 .blog-content th {
-  border: 1px solid #E7E2DC;
+  border: 1px solid #D1D5DB;
   padding: 0.6rem 0.75rem;
   text-align: left;
   vertical-align: top;
@@ -159,7 +165,10 @@
    cells still wrap normally inside */
 .blog-content table {
   display: block;
+  width: fit-content;
   max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
   overflow-x: auto;
   white-space: normal;
 }

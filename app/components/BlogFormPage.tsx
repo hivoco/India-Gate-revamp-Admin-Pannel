@@ -115,7 +115,8 @@ export default function BlogFormPage() {
           setContent(blog.content);
           setSubtitle(blog.subtitle || "");
           setCategory(blog.category || "");
-          setIsPublished(blog.is_published);
+          // arrives as tinyint 1 or 0, the form sends this straight back out
+          setIsPublished(Boolean(blog.is_published));
           setCurrentImageUrl(blog.image_url);
         })
         .catch(() => {

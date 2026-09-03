@@ -69,7 +69,8 @@ export default function HomeSlides() {
     form.append("sort_order", String(slide.sort_order ?? 0));
 
     if (slide.is_active !== undefined) {
-      form.append("is_active", String(slide.is_active));
+      // Boolean first, mysql gives tinyint back as 1 and String() on that is "1"
+      form.append("is_active", String(Boolean(slide.is_active)));
     }
 
     for (const [key, file] of Object.entries(files)) form.append(key, file);
